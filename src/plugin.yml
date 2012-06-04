@@ -1,0 +1,12 @@
+name: Register
+main: me.bibo38.Register.Register
+version: 0.8
+author: bibo38
+commands:
+  register:
+    description: Register you on the Server
+    usage: /register [Password]
+permissions:
+  register.register:
+    description: Allows a player to use the register command!
+    default: false

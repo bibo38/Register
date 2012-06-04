@@ -1,0 +1,5 @@
+password: 123456
+command1: /permissions player setgroup
+command2: member
+registered:
+  - bibo38
