@@ -1,6 +1,6 @@
 name: Register
 main: me.bibo38.Register.Register
-version: 0.8
+version: 0.84
 author: bibo38
 commands:
   register:

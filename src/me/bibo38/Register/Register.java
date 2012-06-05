@@ -19,6 +19,7 @@ public class Register extends JavaPlugin
 	private Logger log;
 	private PluginDescriptionFile pdFile;
 	private static FileConfiguration cfg;
+	private static Register main;
 	
 	private InteractListener myInteractListener;
 	
@@ -27,6 +28,7 @@ public class Register extends JavaPlugin
 		log = this.getLogger();
 		pdFile = this.getDescription();
 		cfg = this.getConfig();
+		main = this; // For Config reloading
 		cfg.options().copyDefaults(true);
 		this.saveConfig();
 		
@@ -57,11 +59,13 @@ public class Register extends JavaPlugin
 	
 	public static boolean hasPerm(String player)
 	{
+		main.reloadConfig();
 		List<String> user = cfg.getStringList("registered");
-		if(user.contains(player))
+		if(user.contains(player) || main.getServer().getPlayer(player).hasPermission("register.register"))
 		{
 			return true;
 		}
+		
 		return false;
 	}
 	
@@ -77,6 +81,7 @@ public class Register extends JavaPlugin
 		
 		if(cmd.getName().equalsIgnoreCase("register") && !hasPerm(player.getName()))
 		{
+			this.reloadConfig();
 			if(args.length == 0 || !args[0].equals(cfg.getString("password")))
 			{
 				player.sendMessage(ChatColor.RED + "Incorrect Password!");
