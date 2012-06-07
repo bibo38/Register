@@ -1,4 +1,5 @@
 name: Register
+version: 0.82
 main: me.bibo38.Register.Register
 author: bibo38
 softdepend: [Vault]
