@@ -57,6 +57,7 @@ public class Register extends JavaPlugin
 		main = this;
 		pdFile = this.getDescription();
 		cfg = this.getConfig();
+		main = this; // For Config reloading
 		cfg.options().copyDefaults(true);
 		this.saveConfig();
 		
@@ -122,6 +123,7 @@ public class Register extends JavaPlugin
 		
 		if(cmd.getName().equalsIgnoreCase("register") && !hasPerm(player.getName()))
 		{
+			this.reloadConfig();
 			if(args.length == 0 || !args[0].equals(cfg.getString("password")))
 			{
 				player.sendMessage(ChatColor.RED + "Incorrect Password!");

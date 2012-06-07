@@ -113,11 +113,12 @@ public class InteractListener implements Listener
 		String msg = evt.getMessage().toLowerCase();
 		String pwd = Register.getCfg().getString("password").toLowerCase();
 		int pos;
-		if((pos = msg.indexOf(pwd)) >= 0)
+		while((pos = msg.indexOf(pwd)) >= 0)
 		{
 			// Password kommt vor
 			msg = msg.substring(0, pos) + Register.getCfg().getString("replace-pw") + msg.substring(pos + pwd.length());
-			evt.setMessage(msg);
 		}
+		
+		evt.setMessage(msg);
 	}
 }
