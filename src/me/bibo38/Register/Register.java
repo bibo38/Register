@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
+import net.milkbowl.vault.permission.Permission;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,6 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -21,20 +24,51 @@ public class Register extends JavaPlugin
 	private static FileConfiguration cfg;
 	
 	private InteractListener myInteractListener;
+	private static Register main;
+	private static boolean useVault = false;
+	private static Permission perm;
+	private static boolean useCfg = true;
+	
+	private boolean setupPermissions()
+	{
+		if(this.getServer().getPluginManager().getPlugin("Vault") == null)
+		{
+			return false;
+		}
+		
+		RegisteredServiceProvider<Permission> rsp = this.getServer().getServicesManager().getRegistration(Permission.class);
+		if(rsp == null)
+		{
+			return false;
+		}
+		
+		perm = rsp.getProvider();
+		if(perm == null)
+		{
+			return false;
+		}
+		
+		return true;
+	}
 	
 	public void onEnable()
 	{
 		log = this.getLogger();
+		main = this;
 		pdFile = this.getDescription();
 		cfg = this.getConfig();
 		cfg.options().copyDefaults(true);
 		this.saveConfig();
+		
+		useCfg = cfg.getBoolean("use-cfg");
 		
 		File updateord = this.getServer().getUpdateFolderFile();
 		if(updateord.exists() && updateord.listFiles().length == 0)
 		{
 			updateord.delete();
 		}
+		
+		useVault = setupPermissions(); // Soll Vault benutzt werden?
 		
 		myInteractListener = new InteractListener();
 		
@@ -57,12 +91,23 @@ public class Register extends JavaPlugin
 	
 	public static boolean hasPerm(String player)
 	{
-		List<String> user = cfg.getStringList("registered");
-		if(user.contains(player))
+		if(useCfg)
 		{
-			return true;
+			main.reloadConfig();
+			List<String> user = cfg.getStringList("registered");
+			if(user.contains(player))
+			{
+				return true;
+			}
 		}
-		return false;
+		
+		if(useVault)
+		{
+			return (perm.has(main.getServer().getPlayer(player), "register.register") == true); // Null kann auch vorkommen
+		} else
+		{
+			return main.getServer().getPlayer(player).hasPermission("register.register");
+		}
 	}
 	
 	public boolean onCommand(CommandSender cs, Command cmd, String commandLabel, String[] args)
@@ -88,11 +133,15 @@ public class Register extends JavaPlugin
 				player.setHealth(player.getMaxHealth());
 				player.setFoodLevel(20); // Voller Hunger
 				
-				List<String> user = cfg.getStringList("registered");
-				user.add(player.getName());
-				cfg.set("registered", user);
-				this.saveConfig();
-				this.reloadConfig();
+				if(useCfg)
+				{
+					this.reloadConfig();
+					List<String> user = cfg.getStringList("registered");
+					user.add(player.getName());
+					cfg.set("registered", user);
+					this.saveConfig();
+					this.reloadConfig();
+				}
 				
 				log.info(player.getName() + " was successful registered!");
 			}

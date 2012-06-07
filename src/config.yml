@@ -1,5 +1,7 @@
 password: 123456
 command1: /permissions player setgroup
 command2: member
+use-cfg: false;
+replace-pw: *Password*
 registered:
   - bibo38

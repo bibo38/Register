@@ -116,7 +116,7 @@ public class InteractListener implements Listener
 		if((pos = msg.indexOf(pwd)) >= 0)
 		{
 			// Password kommt vor
-			msg = msg.substring(0, pos) + "[Password]" + msg.substring(pos + pwd.length());
+			msg = msg.substring(0, pos) + Register.getCfg().getString("replace-pw") + msg.substring(pos + pwd.length());
 			evt.setMessage(msg);
 		}
 	}
