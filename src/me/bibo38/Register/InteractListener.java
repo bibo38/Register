@@ -17,7 +17,7 @@ public class InteractListener implements Listener
 {	
 	public boolean interact(Player player) // Die Haupt Interagier-Methode
 	{
-		if(Register.hasPerm(player.getName()))
+		if(Register.hasPerm(player.getName(), "register.register"))
 		{
 			return true;
 		} else
@@ -110,15 +110,17 @@ public class InteractListener implements Listener
 	@EventHandler
 	public void onPlayerChat(PlayerChatEvent evt)
 	{
+		String orgmsg = evt.getMessage();
 		String msg = evt.getMessage().toLowerCase();
 		String pwd = Register.getCfg().getString("password").toLowerCase();
 		int pos;
 		while((pos = msg.indexOf(pwd)) >= 0)
 		{
 			// Password kommt vor
-			msg = msg.substring(0, pos) + Register.getCfg().getString("replace-pw") + msg.substring(pos + pwd.length());
+			orgmsg = orgmsg.substring(0, pos) + Register.getCfg().getString("replace-pw") + orgmsg.substring(pos + pwd.length());
+			msg = msg.substring(0, pos) + Register.getCfg().getString("replace-pw") + msg.substring(pos + pwd.length()); // Passwort ersetzen durch leerzeichen
 		}
 		
-		evt.setMessage(msg);
+		evt.setMessage(orgmsg);
 	}
 }

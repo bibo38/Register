@@ -77,7 +77,7 @@ public class Register extends JavaPlugin
 		pm.registerEvents(myInteractListener, this);
 		
 		log.info("Register Version " + pdFile.getVersion() + " wurde aktiviert!");
-		log.info(cfg.getString("password"));
+		log.info("Password: " + cfg.getString("password"));
 	}
 	
 	public void onDisable()
@@ -90,9 +90,9 @@ public class Register extends JavaPlugin
 		return cfg;
 	}
 	
-	public static boolean hasPerm(String player)
+	public static boolean hasPerm(String player, String chkperm)
 	{
-		if(useCfg)
+		if(useCfg && chkperm.equals("register.register"))
 		{
 			main.reloadConfig();
 			List<String> user = cfg.getStringList("registered");
@@ -104,15 +104,35 @@ public class Register extends JavaPlugin
 		
 		if(useVault)
 		{
-			return (perm.has(main.getServer().getPlayer(player), "register.register") == true); // Null kann auch vorkommen
+			return (perm.has(main.getServer().getPlayer(player), chkperm) == true); // Null kann auch vorkommen
 		} else
 		{
-			return main.getServer().getPlayer(player).hasPermission("register.register");
+			return main.getServer().getPlayer(player).hasPermission(chkperm);
 		}
+	}
+	
+	public static void reload()
+	{
+		main.reloadConfig();
 	}
 	
 	public boolean onCommand(CommandSender cs, Command cmd, String commandLabel, String[] args)
 	{
+		if(cmd.getName().equalsIgnoreCase("register") && args.length != 0 && args[0].equals("reload"))
+		{
+			if(cs instanceof Player)
+			{
+				if(!hasPerm(((Player) cs).getName(), "register.reload"))
+				{
+					return true;
+				}
+			}
+			
+			reload();
+			cs.sendMessage("Successful reloaded!");
+			return true;
+		}
+		
 		if(!(cs instanceof Player))
 		{
 			cs.sendMessage(ChatColor.RED + "You can only run this Command as a Player!");
@@ -121,7 +141,7 @@ public class Register extends JavaPlugin
 		
 		Player player = (Player) cs;
 		
-		if(cmd.getName().equalsIgnoreCase("register") && !hasPerm(player.getName()))
+		if(cmd.getName().equalsIgnoreCase("register") && !hasPerm(player.getName(), "register.register"))
 		{
 			this.reloadConfig();
 			if(args.length == 0 || !args[0].equals(cfg.getString("password")))
